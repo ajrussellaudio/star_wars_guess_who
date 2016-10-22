@@ -1,9 +1,11 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
 
+var StarWarsPeople = require('./components/ApiCheck')
+
 window.onload = function(){
   ReactDOM.render(
-    <h1> App Started </h1>,
+    <StarWarsPeople />,
     document.getElementById('app')
   );
 }
