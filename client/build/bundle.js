@@ -52,7 +52,7 @@
 	var StarWarsPeople = __webpack_require__(159);
 	
 	window.onload = function () {
-	  ReactDOM.render(React.createElement(StarWarsPeople, null), document.getElementById('app'));
+	  ReactDOM.render(React.createElement(StarWarsPeople, { numFilms: 4 }), document.getElementById('app'));
 	};
 
 /***/ },
@@ -19756,46 +19756,42 @@
 	'use strict';
 	
 	var React = __webpack_require__(1);
-	var SWAPI = __webpack_require__(161);
+	var SWAPI = __webpack_require__(160);
+	
+	var StarWarsPerson = __webpack_require__(161);
 	
 	var StarWarsPeople = React.createClass({
 	  displayName: 'StarWarsPeople',
 	  getInitialState: function getInitialState() {
-	    return { allPeople: [] };
+	    return {
+	      people: []
+	    };
 	  },
 	  componentDidMount: function componentDidMount() {
 	    var StarWarsApi = new SWAPI();
 	    var self = this;
-	    StarWarsApi.getPeople(function (people) {
-	      self.setState({ allPeople: self.state.allPeople.concat(people) });
-	    });
-	  },
-	  filterPeople: function filterPeople(numFilms) {
-	    return this.state.allPeople.filter(function (person) {
-	      return person.films.length >= numFilms;
+	    StarWarsApi.get(StarWarsApi.buildUrl({ endpoint: 'people' }), function (response) {
+	      var people = response.results;
+	      var usefulPeople = people.filter(function (person) {
+	        return person.films.length >= self.props.numFilms;
+	      });
+	      var newPeople = self.state.people.concat(usefulPeople);
+	      self.setState({ people: newPeople });
 	    });
 	  },
 	  render: function render() {
-	    var listItems = this.filterPeople(4).map(function (person, index) {
+	    var listItems = this.state.people.map(function (person, index) {
 	      return React.createElement(
 	        'li',
 	        { key: index },
-	        person.name,
-	        ', ',
-	        person.hair_color
+	        React.createElement(StarWarsPerson, { options: person })
 	      );
 	    });
-	
-	    console.log(listItems.length);
 	
 	    return React.createElement(
 	      'div',
 	      null,
-	      React.createElement(
-	        'ul',
-	        null,
-	        listItems
-	      )
+	      listItems
 	    );
 	  }
 	});
@@ -19803,8 +19799,7 @@
 	module.exports = StarWarsPeople;
 
 /***/ },
-/* 160 */,
-/* 161 */
+/* 160 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -19825,28 +19820,83 @@
 	
 	SWAPI.prototype.get = function (url, callback) {
 	  var self = this;
-	  var results = [];
 	  var request = new XMLHttpRequest();
 	  request.open("GET", url);
 	  request.onload = function () {
 	    var data = JSON.parse(request.responseText);
-	    results = results.concat(data.results);
 	    if (data.next) self.get(data.next, callback);
-	    callback(results);
+	    callback(data);
 	  };
 	  request.send();
 	};
 	
-	SWAPI.prototype.getPeople = function (callback) {
-	  var url = this.buildUrl({ endpoint: 'people' });
-	  this.get(url, function (data) {
-	    callback(data);
-	  });
-	};
-	
-	SWAPI.prototype.getPerson = function (person) {};
-	
 	module.exports = SWAPI;
+
+/***/ },
+/* 161 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var React = __webpack_require__(1);
+	var SWAPI = __webpack_require__(160);
+	
+	var StarWarsPerson = function (_React$Component) {
+	  _inherits(StarWarsPerson, _React$Component);
+	
+	  function StarWarsPerson(props) {
+	    _classCallCheck(this, StarWarsPerson);
+	
+	    var _this = _possibleConstructorReturn(this, (StarWarsPerson.__proto__ || Object.getPrototypeOf(StarWarsPerson)).call(this, props));
+	
+	    _this.state = {
+	      name: _this.props.options.name,
+	      homeworld: ""
+	    };
+	    return _this;
+	  }
+	
+	  _createClass(StarWarsPerson, [{
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      var starWarsApi = new SWAPI();
+	      var self = this;
+	      starWarsApi.get(this.props.options.homeworld, function (homeworld) {
+	        self.setState({ homeworld: homeworld.name });
+	      });
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return React.createElement(
+	        'div',
+	        null,
+	        React.createElement(
+	          'h3',
+	          null,
+	          this.state.name
+	        ),
+	        React.createElement(
+	          'p',
+	          null,
+	          this.state.homeworld
+	        )
+	      );
+	    }
+	  }]);
+	
+	  return StarWarsPerson;
+	}(React.Component);
+	
+	module.exports = StarWarsPerson;
 
 /***/ }
 /******/ ]);

@@ -14,27 +14,14 @@ SWAPI.prototype.buildUrl = function( options ) {
 
 SWAPI.prototype.get = function( url, callback ) {
   var self = this;
-  var results = [];
   var request = new XMLHttpRequest();
   request.open( "GET", url );
   request.onload = function() {
     var data = JSON.parse( request.responseText );
-    results = results.concat( data.results );
     if( data.next ) self.get( data.next, callback );
-    callback( results );
+    callback( data );
   }
   request.send();
-};
-
-SWAPI.prototype.getPeople = function( callback ) {
-  var url = this.buildUrl({ endpoint: 'people' });
-  this.get( url, function(data) {
-    callback( data );
-  });
-};
-
-SWAPI.prototype.getPerson = function( person ) {
-  
 };
 
 module.exports = SWAPI;
