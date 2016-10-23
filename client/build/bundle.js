@@ -19757,6 +19757,7 @@
 	
 	var React = __webpack_require__(1);
 	var SWAPI = __webpack_require__(160);
+	var classNames = __webpack_require__(162);
 	
 	var StarWarsPerson = __webpack_require__(161);
 	
@@ -19769,28 +19770,26 @@
 	  },
 	  componentDidMount: function componentDidMount() {
 	    var StarWarsApi = new SWAPI();
+	    var url = StarWarsApi.buildUrl({ endpoint: 'people' });
 	    var self = this;
-	    StarWarsApi.get(StarWarsApi.buildUrl({ endpoint: 'people' }), function (response) {
+	    StarWarsApi.get(url, function (response) {
 	      var people = response.results;
-	      var usefulPeople = people.filter(function (person) {
+	      var selectedPeople = people.filter(function (person) {
 	        return person.films.length >= self.props.numFilms;
 	      });
-	      var newPeople = self.state.people.concat(usefulPeople);
+	      var newPeople = self.state.people.concat(selectedPeople);
 	      self.setState({ people: newPeople });
 	    });
 	  },
 	  render: function render() {
 	    var listItems = this.state.people.map(function (person, index) {
-	      return React.createElement(
-	        'li',
-	        { key: index },
-	        React.createElement(StarWarsPerson, { options: person })
-	      );
+	      return React.createElement(StarWarsPerson, { options: person, key: index });
 	    });
 	
 	    return React.createElement(
 	      'div',
-	      null,
+	      {
+	        className: 'peopleList' },
 	      listItems
 	    );
 	  }
@@ -19859,35 +19858,89 @@
 	
 	    _this.state = {
 	      name: _this.props.options.name,
-	      homeworld: ""
+	      eyeColor: _this.props.options.eye_color,
+	      hairColor: _this.props.options.hair_color,
+	      gender: _this.props.options.gender,
+	      skinColor: _this.props.options.skin_color,
+	      homeworld: "",
+	      species: "",
+	      isPressed: false
+	    };
+	    _this.proptypes = {
+	      options: React.PropTypes.object.isRequired
 	    };
 	    return _this;
 	  }
 	
 	  _createClass(StarWarsPerson, [{
-	    key: 'componentDidMount',
-	    value: function componentDidMount() {
+	    key: 'componentWillMount',
+	    value: function componentWillMount() {
 	      var starWarsApi = new SWAPI();
 	      var self = this;
 	      starWarsApi.get(this.props.options.homeworld, function (homeworld) {
 	        self.setState({ homeworld: homeworld.name });
 	      });
+	      starWarsApi.get(this.props.options.species, function (species) {
+	        self.setState({ species: species.name });
+	      });
+	    }
+	  }, {
+	    key: 'handleClick',
+	    value: function handleClick(event) {
+	      console.log("click");
+	      this.setState({ isPressed: true });
 	    }
 	  }, {
 	    key: 'render',
 	    value: function render() {
+	      var personClass = "person";
+	      if (this.state.isPressed) personClass += ' red';
 	      return React.createElement(
 	        'div',
-	        null,
+	        { className: personClass, key: this.props.key,
+	          onClick: this.handleClick.bind(this) },
 	        React.createElement(
-	          'h3',
-	          null,
+	          'span',
+	          { className: 'name' },
 	          this.state.name
 	        ),
 	        React.createElement(
-	          'p',
-	          null,
-	          this.state.homeworld
+	          'span',
+	          { className: 'info' },
+	          React.createElement(
+	            'ul',
+	            null,
+	            React.createElement(
+	              'li',
+	              null,
+	              'Species: ',
+	              this.state.species
+	            ),
+	            React.createElement(
+	              'li',
+	              null,
+	              'Eyes: ',
+	              this.state.eyeColor
+	            ),
+	            React.createElement(
+	              'li',
+	              null,
+	              'Hair: ',
+	              this.state.hairColor
+	            ),
+	            React.createElement(
+	              'li',
+	              null,
+	              'Gender: ',
+	              this.state.gender
+	            ),
+	            React.createElement(
+	              'li',
+	              null,
+	              'Homeworld: ',
+	              this.state.homeworld
+	            )
+	          )
 	        )
 	      );
 	    }
@@ -19897,6 +19950,60 @@
 	}(React.Component);
 	
 	module.exports = StarWarsPerson;
+
+/***/ },
+/* 162 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
+	  Copyright (c) 2016 Jed Watson.
+	  Licensed under the MIT License (MIT), see
+	  http://jedwatson.github.io/classnames
+	*/
+	/* global define */
+	
+	(function () {
+		'use strict';
+	
+		var hasOwn = {}.hasOwnProperty;
+	
+		function classNames () {
+			var classes = [];
+	
+			for (var i = 0; i < arguments.length; i++) {
+				var arg = arguments[i];
+				if (!arg) continue;
+	
+				var argType = typeof arg;
+	
+				if (argType === 'string' || argType === 'number') {
+					classes.push(arg);
+				} else if (Array.isArray(arg)) {
+					classes.push(classNames.apply(null, arg));
+				} else if (argType === 'object') {
+					for (var key in arg) {
+						if (hasOwn.call(arg, key) && arg[key]) {
+							classes.push(key);
+						}
+					}
+				}
+			}
+	
+			return classes.join(' ');
+		}
+	
+		if (typeof module !== 'undefined' && module.exports) {
+			module.exports = classNames;
+		} else if (true) {
+			// register as 'classnames', consistent with npm package name
+			!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function () {
+				return classNames;
+			}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		} else {
+			window.classNames = classNames;
+		}
+	}());
+
 
 /***/ }
 /******/ ]);

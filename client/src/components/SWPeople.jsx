@@ -1,5 +1,6 @@
 var React = require('react');
 var SWAPI = require('../models/SWAPI');
+var classNames = require('classnames');
 
 var StarWarsPerson = require('./SWPerson')
 
@@ -13,26 +14,28 @@ var StarWarsPeople = React.createClass({
 
   componentDidMount() {
     var StarWarsApi = new SWAPI();
+    var url = StarWarsApi.buildUrl({endpoint: 'people'});
     var self = this;
-    StarWarsApi.get(
-      StarWarsApi.buildUrl({endpoint: 'people'}), 
-      function( response ) {
-        var people = response.results;
-        var usefulPeople = people.filter( function(person){
-          return person.films.length >= self.props.numFilms;
-        });
-        var newPeople = self.state.people.concat( usefulPeople );
-        self.setState({ people: newPeople })
+    StarWarsApi.get( url, function( response ) {
+      var people = response.results;
+      var selectedPeople = people.filter( function(person){
+        return person.films.length >= self.props.numFilms;
       });
+      var newPeople = self.state.people.concat( selectedPeople );
+      self.setState({ people: newPeople })
+    });
   },
 
   render() {
     var listItems = this.state.people.map(function(person, index) {
-      return <li key={index}><StarWarsPerson options={person} /></li>
+      return (
+        <StarWarsPerson options={person} key={index} />
+      )
     });
 
     return (
-      <div>
+      <div 
+        className="peopleList">
         {listItems}
       </div>
     )
