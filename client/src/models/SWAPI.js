@@ -13,13 +13,14 @@ SWAPI.prototype.buildUrl = function( options ) {
 };
 
 SWAPI.prototype.get = function( url, callback ) {
+  var isFinished = false;
   var self = this;
   var request = new XMLHttpRequest();
   request.open( "GET", url );
   request.onload = function() {
     var data = JSON.parse( request.responseText );
     if( data.next ) self.get( data.next, callback );
-    callback( data );
+    callback( data, isFinished );
   }
   request.send();
 };

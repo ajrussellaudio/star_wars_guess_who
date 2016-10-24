@@ -7,10 +7,10 @@ class StarWarsPerson extends React.Component {
     super(props);
     this.state = {
       name: this.props.options.name,
-      eyeColor: this.props.options.eye_color,
-      hairColor: this.props.options.hair_color,
+      eyeColor: this.props.options.eyeColor,
+      hairColor: this.props.options.hairColor,
       gender: this.props.options.gender,
-      skinColor: this.props.options.skin_color,
+      skinColor: this.props.options.skinColor,
       homeworld: "",
       species: "",
       isPressed: false
@@ -32,8 +32,11 @@ class StarWarsPerson extends React.Component {
   }
 
   handleClick(event) {
-    console.log("click")
-    this.setState({ isPressed: true })
+    if( this.state.isPressed ){
+      this.setState({ isPressed: false })
+    } else {
+      this.setState({ isPressed: true })
+    }
   }
 
   render() {

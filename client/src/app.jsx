@@ -5,7 +5,7 @@ var StarWarsPeople = require('./components/SWPeople')
 
 window.onload = function(){
   ReactDOM.render(
-    <StarWarsPeople numFilms={4} />,
+    <StarWarsPeople numFilms={2} />,
     document.getElementById('app')
   );
 }

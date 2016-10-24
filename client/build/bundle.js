@@ -52,7 +52,7 @@
 	var StarWarsPeople = __webpack_require__(159);
 	
 	window.onload = function () {
-	  ReactDOM.render(React.createElement(StarWarsPeople, { numFilms: 4 }), document.getElementById('app'));
+	  ReactDOM.render(React.createElement(StarWarsPeople, { numFilms: 2 }), document.getElementById('app'));
 	};
 
 /***/ },
@@ -19759,13 +19759,17 @@
 	var SWAPI = __webpack_require__(160);
 	var classNames = __webpack_require__(162);
 	
-	var StarWarsPerson = __webpack_require__(161);
+	var StarWarsPeopleList = __webpack_require__(163);
+	var StarWarsGuessWho = __webpack_require__(164);
+	
+	var SWPerson = __webpack_require__(166);
 	
 	var StarWarsPeople = React.createClass({
 	  displayName: 'StarWarsPeople',
 	  getInitialState: function getInitialState() {
 	    return {
-	      people: []
+	      people: [],
+	      listComplete: false
 	    };
 	  },
 	  componentDidMount: function componentDidMount() {
@@ -19773,25 +19777,53 @@
 	    var url = StarWarsApi.buildUrl({ endpoint: 'people' });
 	    var self = this;
 	    StarWarsApi.get(url, function (response) {
+	      if (!response.next) self.setState({ listComplete: true });
 	      var people = response.results;
 	      var selectedPeople = people.filter(function (person) {
 	        return person.films.length >= self.props.numFilms;
 	      });
-	      var newPeople = self.state.people.concat(selectedPeople);
-	      self.setState({ people: newPeople });
+	      var peopleObjects = selectedPeople.map(function (person) {
+	        return new SWPerson(person);
+	      });
+	      var newPeople = self.state.people.concat(peopleObjects);
+	      self.setState({ people: self.shuffle(newPeople) });
 	    });
 	  },
 	  render: function render() {
-	    var listItems = this.state.people.map(function (person, index) {
-	      return React.createElement(StarWarsPerson, { options: person, key: index });
-	    });
+	    var contents = React.createElement('div', { className: 'app' });
+	    if (this.state.listComplete) {
+	      contents = React.createElement(
+	        'div',
+	        { className: 'app' },
+	        React.createElement(StarWarsGuessWho, {
+	          people: this.state.people }),
+	        React.createElement(StarWarsPeopleList, {
+	          people: this.state.people })
+	      );
+	    }
+	    return contents;
+	  },
+	  shuffle: function shuffle(array) {
+	    // borrowed from Stack Overflow
+	    // http://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+	    var currentIndex = array.length,
+	        temporaryValue,
+	        randomIndex;
 	
-	    return React.createElement(
-	      'div',
-	      {
-	        className: 'peopleList' },
-	      listItems
-	    );
+	    // While there remain elements to shuffle...
+	    while (0 !== currentIndex) {
+	
+	      // Pick a remaining element...
+	      randomIndex = Math.floor(Math.random() * currentIndex);
+	      currentIndex -= 1;
+	
+	      // And swap it with the current element.
+	      temporaryValue = array[currentIndex];
+	      array[currentIndex] = array[randomIndex];
+	      array[randomIndex] = temporaryValue;
+	    }
+	
+	    return array;
 	  }
 	});
 	
@@ -19818,13 +19850,14 @@
 	};
 	
 	SWAPI.prototype.get = function (url, callback) {
+	  var isFinished = false;
 	  var self = this;
 	  var request = new XMLHttpRequest();
 	  request.open("GET", url);
 	  request.onload = function () {
 	    var data = JSON.parse(request.responseText);
 	    if (data.next) self.get(data.next, callback);
-	    callback(data);
+	    callback(data, isFinished);
 	  };
 	  request.send();
 	};
@@ -19858,10 +19891,10 @@
 	
 	    _this.state = {
 	      name: _this.props.options.name,
-	      eyeColor: _this.props.options.eye_color,
-	      hairColor: _this.props.options.hair_color,
+	      eyeColor: _this.props.options.eyeColor,
+	      hairColor: _this.props.options.hairColor,
 	      gender: _this.props.options.gender,
-	      skinColor: _this.props.options.skin_color,
+	      skinColor: _this.props.options.skinColor,
 	      homeworld: "",
 	      species: "",
 	      isPressed: false
@@ -19887,8 +19920,11 @@
 	  }, {
 	    key: 'handleClick',
 	    value: function handleClick(event) {
-	      console.log("click");
-	      this.setState({ isPressed: true });
+	      if (this.state.isPressed) {
+	        this.setState({ isPressed: false });
+	      } else {
+	        this.setState({ isPressed: true });
+	      }
 	    }
 	  }, {
 	    key: 'render',
@@ -20004,6 +20040,199 @@
 		}
 	}());
 
+
+/***/ },
+/* 163 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var React = __webpack_require__(1);
+	var StarWarsPerson = __webpack_require__(161);
+	
+	var StarWarsPeopleList = function StarWarsPeopleList(props) {
+	  var listItems = props.people.map(function (person, index) {
+	    return React.createElement(StarWarsPerson, { options: person, key: index });
+	  });
+	
+	  return React.createElement(
+	    'div',
+	    {
+	      className: 'peopleList' },
+	    listItems
+	  );
+	};
+	
+	module.exports = StarWarsPeopleList;
+
+/***/ },
+/* 164 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var React = __webpack_require__(1);
+	
+	var AttributesSelect = __webpack_require__(165);
+	var CharacteristicSelect = __webpack_require__(167);
+	
+	var StarWarsGuessWho = React.createClass({
+	  displayName: 'StarWarsGuessWho',
+	  getInitialState: function getInitialState() {
+	    return {
+	      people: this.props.people,
+	      person: {},
+	      selectedAttribute: "",
+	      selectedCharacteristic: ""
+	    };
+	  },
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    var index = Math.floor(Math.random() * nextProps.people.length);
+	    var theChosenOne = nextProps.people[index];
+	    this.setState({ person: theChosenOne });
+	  },
+	  attributes: function attributes() {
+	    return Object.keys(this.state.people[0]);
+	  },
+	  characteristics: function characteristics(key) {
+	    return this.state.people.map(function (person) {
+	      return person[this.state.selectedAttribute];
+	    }.bind(this));
+	  },
+	  attributeChangeHandler: function attributeChangeHandler(event) {
+	    this.setState({ selectedAttribute: event.target.value });
+	  },
+	  render: function render() {
+	    return React.createElement(
+	      'div',
+	      { className: 'gameBox' },
+	      React.createElement(
+	        'div',
+	        { className: 'game' },
+	        React.createElement(
+	          'p',
+	          null,
+	          'Answer: ',
+	          this.state.person.name
+	        ),
+	        React.createElement(AttributesSelect, {
+	          attributes: this.attributes(),
+	          onChange: this.attributeChangeHandler }),
+	        React.createElement(CharacteristicSelect, {
+	          characteristics: this.characteristics(this.state.selectedAttribute) })
+	      )
+	    );
+	  }
+	});
+	
+	module.exports = StarWarsGuessWho;
+
+/***/ },
+/* 165 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var React = __webpack_require__(1);
+	
+	var AttributesSelect = React.createClass({
+	  displayName: 'AttributesSelect',
+	  prettify: function prettify(string) {
+	    var input = string.split('');
+	    var output = [];
+	    for (var i = 0; i < input.length; i++) {
+	      var char = input[i];
+	      if (char === char.toUpperCase()) {
+	        output.push(' ' + char);
+	      } else {
+	        output.push(char);
+	      }
+	    }
+	    var result = output.join('');
+	    var capitalized = result[0][0].toUpperCase() + result.substring(1, result.length);
+	    return capitalized;
+	  },
+	  render: function render() {
+	    var optionsMinusName = this.props.attributes.filter(function (item) {
+	      return item !== "name";
+	    });
+	    var options = optionsMinusName.map(function (item, index) {
+	      return React.createElement(
+	        'option',
+	        { key: index, value: item },
+	        this.prettify(item)
+	      );
+	    }.bind(this));
+	
+	    return React.createElement(
+	      'select',
+	      { defaultValue: 'default', onChange: this.props.onChange },
+	      React.createElement(
+	        'option',
+	        { value: 'default', disabled: true },
+	        'Choose an attribute...'
+	      ),
+	      options
+	    );
+	  }
+	});
+	
+	module.exports = AttributesSelect;
+
+/***/ },
+/* 166 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	var SWPerson = function SWPerson(options) {
+	  this.name = options.name, this.eyeColor = options.eye_color, this.hairColor = options.hair_color, this.gender = options.gender, this.skinColor = options.skin_color, this.homeworld = options.homeworld, this.species = options.species;
+	};
+	
+	module.exports = SWPerson;
+
+/***/ },
+/* 167 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	var React = __webpack_require__(1);
+	
+	var CharacteristicSelect = React.createClass({
+	  displayName: "CharacteristicSelect",
+	  getInitialState: function getInitialState() {
+	    return {
+	      characteristics: []
+	    };
+	  },
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    this.setState({
+	      characteristics: this.eliminateDupes(nextProps.characteristics)
+	    });
+	  },
+	  eliminateDupes: function eliminateDupes(array) {
+	    // stack overflow
+	    // http://stackoverflow.com/questions/9229645/remove-duplicates-from-javascript-array
+	    return array.filter(function (item, pos, self) {
+	      return self.indexOf(item) == pos;
+	    });
+	  },
+	  render: function render() {
+	    console.log("state:", this.state.characteristics);
+	    if (!this.state.characteristics[0]) {
+	      return React.createElement("div", null);
+	    } else {
+	      return React.createElement(
+	        "div",
+	        null,
+	        "This is gonna work!"
+	      );
+	    }
+	  }
+	});
+	
+	module.exports = CharacteristicSelect;
 
 /***/ }
 /******/ ]);

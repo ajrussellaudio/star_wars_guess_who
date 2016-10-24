@@ -3,18 +3,22 @@ body {
   margin: 0;
   padding: 0;
   background-color: black;
+  background-image: url(https://i.ytimg.com/vi/voWpbz1De_M/maxresdefault.jpg);
+  background-attachment: fixed;
 }
 
 .container {
   width: 960px;
   margin: 0 auto;
-  background-color: #000;
 }
 
 .header {
   text-align: center;
   width: 100%;
   margin: 0 auto;
+  padding-top: 0;
+  padding-bottom: 30px;
+
 }
 
 .tagline {
@@ -28,14 +32,19 @@ h1 {
   margin: 0;
   color: yellow;
   font-family: "SF Distant Galaxy";
-  font-size: 80px;
-  text-shadow: 0px 0px 10px yellow;
+  font-size: 100px;
+  text-shadow: 0px 0px 0px yellow;
+  transition: text-shadow 0.5s linear;
+}
+
+h1:hover {
+  text-shadow: 0px 0px 20px yellow;
 }
 
 h2 {
   margin: 0;
-  color: silver;
-  text-shadow: 0px 0px 10px silver
+  color: gainsboro;
+  text-shadow: 0px 0px 10px gainsboro
   font-size: 40px;
   font-family: "Trajan Pro";
 }
@@ -51,60 +60,75 @@ li {
 }
 
 .person {
-  margin: 0 auto;
-  width: 200px;
-  padding: 10px 20px;
-  margin: 30px 50px;
+  width: 290px;
+  padding: 10px 0;
+  margin: 20px 15px;
   text-align: center; 
   position: relative;
-  display: block;
-  border-radius: 11px;
-  background: linear-gradient(to bottom, #00ff00 0%,#ffffff 10%,#ffffff 50%,#ffffff 90%,#00ff00 100%);
-  box-shadow: 0px 0px 30px 10px rgba(0,255,0,1);
+  display: inline-block;
+  border-radius: 120px;
+  background: white;
+  box-shadow: 0px 0px 30px 10px rgba(0,255,0,1), inset 0px 0px 5px 1px rgba(0,255,0,1);
 }
 
 .person .info {
-  display: none;
   visibility: hidden;
   opacity: 0;
   width: 200px;
   text-align: center;
   padding: 5px 0;
   border-radius: 15px;
-  position: absolute;
+  position: fixed;
+  top: 0;
+  left: 0;
+  margin: 40px;
   z-index: 1;
-  transition: visibility 0s, opacity 0.5s linear;
-  top: -5px;
-  left: 110%;
-  background-color: black;
-  color: yellow;
+  -webkit-transition-delay: 2s;
+  transition-delay: 2s;
+  transition: visibility 0.5s, opacity 0.5s ease-in 3s;
+  background: black;
+  color: rgb(255,215,0);
+  box-shadow: 0px 0px 30px 10px rgba(255,215,0,1), inset 0px 0px 5px 1px rgba(255,215,0,1);
 }
 
 .name {
   z-index: 0;
 }
 
-.red {  
-  background: linear-gradient(to bottom, #ff0000 0%,#ffffff 10%,#ffffff 50%,#ffffff 90%,#ff0000 100%);
-  box-shadow: 0px 0px 30px 10px rgba(255,0,0,1);
+.red {
+  box-shadow: 0px 0px 30px 10px rgba(255,0,0,1), inset 0px 0px 5px 1px rgba(255,0,0,1);
 }
 
-.person:hover {  
-  background: linear-gradient(to bottom, #00E9FF 0%,#ffffff 10%,#ffffff 50%,#ffffff 90%,#00E9FF 100%);
-  box-shadow: 0px 0px 30px 10px rgba(0,233,255,1);
+.person:hover {
+  box-shadow: 0px 0px 30px 10px rgba(0,233,255,1), inset 0px 0px 5px 1px rgba(0,233,255,1);
 }
 
-.red:hover {  
-  background: linear-gradient(to bottom, #ff0000 0%,#ffffff 10%,#ffffff 50%,#ffffff 90%,#ff0000 100%);
-  box-shadow: 0px 0px 30px 10px rgba(255,0,0,1);
+.red:hover {
+  box-shadow: 0px 0px 30px 10px rgba(255,0,0,1), inset 0px 0px 5px 1px rgba(255,0,0,1);
 }
 
 .person:hover .info {
   visibility: visible;
-  opacity: 1;
-  display: block;
+  opacity: 0.75;
 }
 
-.peopleList {
-  padding: 30px 50px;
+.gameBox {
+  width: 320px;
+  height: 390px;
+  position: relative;
+  float: right;
+  top: 0;
+  right: 0;
+}
+
+.game {
+  background-color: red;
+  margin: 20px 15px;
+  width: 250px;
+  height: 330px;
+  padding: 10px 20px;
+  border-radius: 12px;
+  background: black;
+  color: rgba(0,255,255,1);
+  box-shadow: 0px 0px 30px 10px rgba(0,255,255,1), inset 0px 0px 5px 1px rgba(0,255,255,1);
 }
